@@ -1,0 +1,98 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ */
+package com.mycompany.mavenproject2;
+
+import java.awt.*;
+import java.awt.event.*;
+
+public class Mavenproject2 {
+    public static void main(String[] args) {
+        new Calculator();
+    }
+}
+
+class Calculator extends Frame {
+    private TextField textField;
+    private double num1, num2, result;
+    private String operator = "";
+    private boolean isOperatorPressed = false;
+
+    public Calculator() {
+        setTitle("Calculator");
+        setLayout(null);
+
+        textField = new TextField();
+        textField.setFont(new Font("Arial", Font.BOLD, 24));
+        textField.setEditable(false);
+        textField.setBounds(20, 50, 250, 50);
+        add(textField);
+
+        String[] buttonLabels = {
+            "7", "8", "9", "/", 
+            "4", "5", "6", "*", 
+            "1", "2", "3", "-", 
+            "0", ".", "=", "+", 
+            "C", "√"
+        };
+
+        int x = 20, y = 120, width = 50, height = 50, gap = 10;
+        for (String label : buttonLabels) {
+            Button button = new Button(label);
+            button.setBounds(x, y, width, height);
+            button.addActionListener(this::handleButtonPress);
+            add(button);
+            x += width + gap;
+            if (x > 200) {
+                x = 20;
+                y += height + gap;
+            }
+        }
+
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {
+                dispose();
+            }
+        });
+
+        setSize(300, 400);
+        setVisible(true);
+    }
+
+    private void handleButtonPress(ActionEvent e) {
+        String command = e.getActionCommand();
+        if (command.matches("[0-9]")) {
+            if (isOperatorPressed) {
+                textField.setText("");
+                isOperatorPressed = false;
+            }
+            textField.setText(textField.getText() + command);
+        } else if ("+-*/".contains(command)) {
+            num1 = Double.parseDouble(textField.getText());
+            operator = command;
+            isOperatorPressed = true;
+        } else if (command.equals("=")) {
+            num2 = Double.parseDouble(textField.getText());
+            result = switch (operator) {
+                case "+" -> num1 + num2;
+                case "-" -> num1 - num2;
+                case "*" -> num1 * num2;
+                case "/" -> num2 != 0 ? num1 / num2 : Double.NaN;
+                default -> 0;
+            };
+            textField.setText(Double.isNaN(result) ? "Error" : String.valueOf(result));
+            num1 = result;
+        } else if (command.equals("C")) {
+            textField.setText("");
+            num1 = num2 = result = 0;
+            operator = "";
+        } else if (command.equals(".")) {
+            if (!textField.getText().contains(".")) {
+                textField.setText(textField.getText() + ".");
+            }
+        } else if (command.equals("√")) {
+            double value = Double.parseDouble(textField.getText());
+            textField.setText(value >= 0 ? String.valueOf(Math.sqrt(value)) : "Error");
+        }
+    }
+}
